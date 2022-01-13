@@ -1,13 +1,4 @@
-class Node:
-
-  """A simple class to generates nodes"""
-
-  def __init__(self,value):
-    self.value=value
-    self.next=None
-
-  def __str__(self):
-    return f"{self.value}"
+from node import Node
 
 class MyList:
 
@@ -15,12 +6,16 @@ class MyList:
 
   def __init__(self,*head_value):
     self.length=len(head_value)
-    self.head=Node(head_value[0])
-    current=self.head
+    if len(head_value):
+      self.head=Node(head_value[0])
+
+      current=self.head
     
-    for item in head_value[1:]:
-      current.next=Node(item)
-      current=current.next
+      for item in head_value[1:]:
+        current.next=Node(item)
+        current=current.next
+    else:
+      self.head=None
 
   def __iter__(self):
     while (current:=current if "current" in locals() else self.head) is not None:
@@ -31,7 +26,7 @@ class MyList:
     return self.length
 
   def __str__(self):
-    return " -> ".join(map(str,self))
+    return "["+" -> ".join(map(str,self))+"]"
 
   def __reversed__(self):
     return MyList(*reversed([node.value for node in self]))
@@ -52,8 +47,14 @@ class MyList:
 
     return self
 
+  def clear(self):
+    self.head=None
+
+  def copy(self):
+    return MyList(*self)
+
   def insert(self,index,element):
-    if index>self.length:
+    if index>self.length or index<0:
       raise IndexError
 
     counter=0
@@ -69,23 +70,43 @@ class MyList:
 
     self.length+=1
 
+    return self
+
   def map(self,function):
     return MyList(*(function(node.value) for node in self))
 
-my_list=MyList(1,2,3,4)
-print(my_list)
+  def pop(self,index=None):
+    if index is None:
+      index=self.length-1
 
-my_list.append(5,6)
-print(my_list)
+    if index>self.length or index<0:
+      raise IndexError
 
-my_list.insert(2,2.5)
-print(my_list)
+    counter=0
+    current=self.head
 
-print(len(my_list))
+    while counter<index-1:
+      current=current.next
+      counter+=1
 
-for i in my_list:
-  print(f"Node: {i}, value: {i.value}, next: {i.next}")
+    if self.length==1:
+      self.head=None
+    elif index==0:
+      self.head=self.head.next
+    else:
+      current.next=current.next.next
+    self.length-=1
 
-print(reversed(my_list))
+    return self
 
-print(my_list.map(lambda x: x+1))
+  def remove(self,value):
+    counter=0
+
+    while (current:=current if "current" in locals() else self.head) is not None:
+      if current.value==value:
+        self.pop(counter)
+        return self
+      current=current.next
+      counter+=1
+
+    raise ValueError
